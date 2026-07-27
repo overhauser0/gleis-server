@@ -41,9 +41,9 @@ export default function BucketView({ data, onItemClick, onOpenCreate }: Props) {
 
   const getIcon = (item: LifeItem) => {
     if (item.status === 'Done') {
-      return <BadgeCheck className="w-5 h-5 text-green-500" />;
+      return 'BadgeCheck';
     } else {
-      return <Archive className="w-5 h-5 text-gray-500" />;
+      return 'Archive';
     }
   };
 

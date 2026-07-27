@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Lightbulb, Mountain, Plus, Beer, LandPlot } from 'lucide-react';
 import { LifeItem } from '@/types';
 import ListItem from './ListItem';
 import { groupItemsByYear } from '@/utils/grouping';
 
 export default function ExploreView({ data, onItemClick, onOpenCreate }: any) {
   const [activeType, setActiveType] = useState<
-    'All' | 'Drinking' | 'Climbing' | 'R-Escape'
+    'All' | 'Drinking' | 'Climbing' | 'R-Escape' | 'Golf'
   >('All');
 
   // スクロール制御用のref
@@ -22,6 +22,21 @@ export default function ExploreView({ data, onItemClick, onOpenCreate }: any) {
       scrollRef.current.scrollTop = 0;
     }
   }, [activeType]);
+
+  const getIcon = () => {
+    switch (activeType) {
+      case 'Drinking':
+        return 'Beer';
+      case 'Climbing':
+        return 'Mountain';
+      case 'R-Escape':
+        return 'Lightbulb';
+      case 'Golf':
+        return 'LandPlot';
+      default:
+        return undefined;
+    }
+  };
 
   const filteredData = useMemo(() => {
     if (activeType === 'All') return data;
@@ -71,6 +86,7 @@ export default function ExploreView({ data, onItemClick, onOpenCreate }: any) {
                   <div key={item.id}>
                     <ListItem
                       item={item}
+                      icon={getIcon()}
                       onItemClick={() => onItemClick(item)}
                     />
                   </div>

@@ -33,3 +33,17 @@ export const markCategory = (item: LifeItem) => {
   if (isExplore) c.push('Explore');
   return c;
 };
+
+export const judgeDefaultIcon = (item: LifeItem) => {
+  if (item.topics?.includes('Travel')) return 'Plane';
+  if (item.flags?.includes('Bucket')) {
+    if (item.status == 'Done') return 'BadgeCheck';
+    return 'Archive';
+  }
+  if (item.topics?.includes('Drinking')) return 'Beer';
+  if (item.topics?.includes('Golf')) return 'LandPlot';
+  if (item.topics?.includes('R-Escape')) return 'Lightbulb';
+  if (item.topics?.includes('Climbing')) return 'Mountain';
+
+  return 'Leaf';
+};

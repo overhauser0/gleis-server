@@ -123,8 +123,8 @@ export default function HomeView({ onNavigate, onItemClick, data }: Props) {
                   <ListItem
                     key={item.id}
                     item={item}
-                    icon={getIcon(item)}
                     onItemClick={() => onItemClick(item)}
+                    iconClassName="text-green-500"
                   />
                 ))}
                 {data.length === 0 && (

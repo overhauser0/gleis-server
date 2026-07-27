@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS notion_pieces_cache (
     url TEXT,
     last_edited_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    --raw_data JSONB DEFAULT '{}'        -- Notion APIからの生レスポンス保持用 ※削除予定
 );
 
 -- 3. ローカルタスク用テーブル
@@ -38,7 +37,7 @@ CREATE TABLE IF NOT EXISTS local_pieces (
     url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    metadata JSONB DEFAULT '{}'        -- 自由な拡張用（topics, flags, fkw等を格納）
+    metadata JSONB DEFAULT '{}'        -- 廃止予定
 );
 
 -- 4. 通知履歴用テーブル

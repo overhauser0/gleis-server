@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { LifeItem } from '@/types';
 import { atlasFetch } from '@/utils/api';
-import { markCategory } from '@/utils/grouping';
+import { markCategory, judgeDefaultIcon } from '@/utils/grouping';
 
 export const usePieceSync = (
   isAuthenticated: boolean,
@@ -64,7 +64,7 @@ export const usePieceSync = (
               url: p.url || '',
               prefs: p.prefs || [],
               imageUrl: p.imageUrl || '',
-              iconType: p.flags?.includes('Food') ? 'food' : 'leaf',
+              iconType: judgeDefaultIcon(p),
               source: p.source,
               category: markCategory(p),
             };

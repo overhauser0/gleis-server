@@ -35,7 +35,7 @@ export default function TravelView({ data, onItemClick, onOpenCreate }: Props) {
                   <div key={item.id}>
                     <ListItem
                       item={item}
-                      icon={<Plane className="w-5 h-5 text-gray-500" />}
+                      icon="Plane"
                       onItemClick={() => onItemClick(item)}
                     />
                   </div>
