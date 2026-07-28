@@ -28,6 +28,7 @@ export interface LifeItem {
   note: string;
   url: string;
   fkw: string[];
+  prefs: string[];
   imageUrl: string;
   iconType: string;
   category?: string[];

@@ -1,7 +1,9 @@
+// trails/src/components/ExploreView.tsx
+
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { Lightbulb, Mountain, Plus, Beer, LandPlot } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { LifeItem } from '@/types';
 import ListItem from './ListItem';
 import { groupItemsByYear } from '@/utils/grouping';
@@ -23,7 +25,7 @@ export default function ExploreView({ data, onItemClick, onOpenCreate }: any) {
     }
   }, [activeType]);
 
-  const getIcon = () => {
+  const filterIcon = () => {
     switch (activeType) {
       case 'Drinking':
         return 'Beer';
@@ -86,7 +88,7 @@ export default function ExploreView({ data, onItemClick, onOpenCreate }: any) {
                   <div key={item.id}>
                     <ListItem
                       item={item}
-                      icon={getIcon()}
+                      icon={filterIcon()}
                       onItemClick={() => onItemClick(item)}
                     />
                   </div>

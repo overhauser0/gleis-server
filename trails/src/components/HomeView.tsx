@@ -112,7 +112,7 @@ export default function HomeView({ onNavigate, onItemClick, data }: Props) {
               </div>
             </div>
 
-            <JapanMapWidget data={data} />
+            <JapanMapWidget data={data} onItemClick={onItemClick} />
 
             <section>
               <h2 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3 px-2 mt-4">
