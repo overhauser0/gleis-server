@@ -1,5 +1,11 @@
-import { Serwist, StaleWhileRevalidate, CacheFirst } from "serwist";
-import type { PrecacheEntry } from "serwist";
+import {
+  Serwist,
+  StaleWhileRevalidate,
+  CacheFirst,
+  NetworkFirst,
+  NetworkOnly,
+} from 'serwist';
+import type { PrecacheEntry } from 'serwist';
 
 declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
@@ -11,35 +17,57 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    // 1. Notion API (WorkOSの心臓部)
+    // 1. Piece (タスク・メモ等) API
+    // 確実な最新データを優先しつつ、オフライン時はキャッシュを返す
     {
-      matcher: ({ url }) => url.pathname.startsWith("/api/tasks"),
-      handler: new StaleWhileRevalidate({
-        cacheName: "api-tasks-cache",
+      matcher: ({ url }) => url.pathname.startsWith('/api/pieces'),
+      handler: new NetworkFirst({
+        cacheName: 'api-pieces-cache',
+        networkTimeoutSeconds: 3, // 3秒応答がなければキャッシュにフォールバック
       }),
     },
-    // 2. 静的資産 (JS / CSS)
+
+    // 2. AI Agent API / 設定
+    // AIのレスポンスはキャッシュせず常にネットワークから取得する
+    {
+      matcher: ({ url }) => url.pathname.startsWith('/api/ai'),
+      handler: new NetworkOnly(),
+    },
+
+    // 3. アラーム用メディア資産 (音声ファイルなど)
+    // オフラインでも確実にアラームを鳴らすために強力にキャッシュ
     {
       matcher: ({ request }) =>
-        request.destination === "style" ||
-        request.destination === "script" ||
-        request.destination === "worker",
+        request.destination === 'audio' || request.destination === 'video',
+      handler: new CacheFirst({
+        cacheName: 'media-assets',
+      }),
+    },
+
+    // 4. 静的資産 (JS / CSS)
+    {
+      matcher: ({ request }) =>
+        request.destination === 'style' ||
+        request.destination === 'script' ||
+        request.destination === 'worker',
       handler: new StaleWhileRevalidate({
-        cacheName: "static-resources",
+        cacheName: 'static-resources',
       }),
     },
-    // 3. 画像 (SVGアイコン等)
+
+    // 5. 画像 (SVGアイコン等)
     {
-      matcher: ({ request }) => request.destination === "image",
+      matcher: ({ request }) => request.destination === 'image',
       handler: new CacheFirst({
-        cacheName: "images",
+        cacheName: 'images',
       }),
     },
-    // 4. フォント
+
+    // 6. フォント
     {
-      matcher: ({ request }) => request.destination === "font",
+      matcher: ({ request }) => request.destination === 'font',
       handler: new CacheFirst({
-        cacheName: "fonts",
+        cacheName: 'fonts',
       }),
     },
   ],

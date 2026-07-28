@@ -20,6 +20,8 @@ import {
   MessageSquare,
   Wand2,
   ArrowRight,
+  FileText,
+  Bot,
 } from 'lucide-react';
 import { ViewType, Task } from '@/types';
 import { atlasFetch } from '@/utils/api';
@@ -106,6 +108,18 @@ export default function CommandPalette({
         label: 'Go to Review',
         icon: ClipboardPenLine,
         action: () => onNavigate('review'),
+      },
+      {
+        id: 'nav-note',
+        label: 'Go to Note',
+        icon: FileText,
+        action: () => onNavigate('note'),
+      },
+      {
+        id: 'nav-agent',
+        label: 'Go to Agent',
+        icon: Bot,
+        action: () => onNavigate('aiagent'),
       },
       {
         id: 'nav-notifications',
