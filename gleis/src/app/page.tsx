@@ -119,10 +119,8 @@ export default function Home() {
     appSettings.syncInterval,
   );
 
-  const { notifications, markAsRead, fetchNotifications } = useNotificationSync(
-    isAuthenticated,
-    () => fetchTasks(true),
-  );
+  const { notifications, markAsRead, fetchNotifications } =
+    useNotificationSync(isAuthenticated);
 
   const { wsRef, wsStatus, connectedDevices, ownDeviceId } = useAtlasWebSocket(
     fetchTasks,
@@ -203,6 +201,7 @@ export default function Home() {
   useEffect(() => {
     if (isAuthenticated && !hasFetchedInitial.current) {
       fetchTasks(false);
+      fetchNotifications();
       hasFetchedInitial.current = true;
     }
   }, [isAuthenticated, fetchTasks]);
