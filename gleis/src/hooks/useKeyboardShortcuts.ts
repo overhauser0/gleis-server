@@ -59,7 +59,6 @@ export const useKeyboardShortcuts = (handlers: ShortcutHandlers) => {
         '5': 'review',
         '6': 'note',
         '7': 'aiagent',
-        '8': 'notifications',
       };
 
       if (keyMap[e.key]) {

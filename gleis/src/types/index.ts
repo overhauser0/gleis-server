@@ -22,6 +22,7 @@ export const VALID_VIEWS = [
   'notifications',
   'note',
   'aiagent',
+  'stats',
   'settings',
 ] as const;
 
@@ -30,3 +31,9 @@ export type ViewType = (typeof VALID_VIEWS)[number];
 export const isViewType = (view: string): view is ViewType => {
   return (VALID_VIEWS as readonly string[]).includes(view);
 };
+
+export interface DeviceInfo {
+  deviceId: string;
+  deviceName: string;
+  clientType: 'extension' | 'gleis' | string;
+}

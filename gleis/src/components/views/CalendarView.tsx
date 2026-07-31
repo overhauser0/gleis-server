@@ -5,9 +5,13 @@ import { Task } from '@/types';
 import { mergeNewDateWithOriginalTime } from '@/utils/dateUtils';
 import { getStatusColor, sortTasksByStatus } from '@/utils/miscellaneousUtils';
 import { atlasFetch } from '@/utils/api';
+import MonthSelector from '../ui/MonthSelector';
 
 interface Props {
+  appSettings: any;
+  setAppSettings: (s: any) => void;
   tasks: Task[];
+  completedTasks: Task[];
   loading: boolean;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   openTaskModal: (task?: Partial<Task>) => void;
@@ -17,31 +21,39 @@ interface Props {
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function CalendarView({
+  appSettings,
+  setAppSettings,
   tasks,
+  completedTasks,
   loading,
   setTasks,
   openTaskModal,
   onOpenStats,
 }: Props) {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [targetDate, setTargetDate] = useState(new Date());
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
 
+  // トグルの状態管理（設定に保存）
+  const showCompleted = appSettings?.showCompletedInCalendar ?? false;
+  const handleToggleCompleted = (checked: boolean) => {
+    setAppSettings({ ...appSettings, showCompletedInCalendar: checked });
+  };
+
+  // 表示するタスクの結合
+  const displayTasks = showCompleted ? [...tasks, ...completedTasks] : tasks;
+
   // カレンダー計算ロジック
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+  const year = targetDate.getFullYear();
+  const month = targetDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const daysInMonth = lastDayOfMonth.getDate();
   const startingDayOfWeek = firstDayOfMonth.getDay();
 
-  // 月の移動
-  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-
   // D&D処理
   const onDrop = async (newDateStr: string) => {
     if (!draggingTaskId) return;
-    const task = tasks.find((t) => t.id === draggingTaskId);
+    const task = displayTasks.find((t) => t.id === draggingTaskId);
 
     // 日付が変わらない場合は無視（時刻部分は維持するため、前方一致で簡易判定）
     if (!task || task.date?.startsWith(newDateStr)) {
@@ -67,6 +79,7 @@ export default function CalendarView({
       }),
     });
   };
+
   const handleRightClick = (e: React.MouseEvent, dateStr: string) => {
     e.preventDefault();
     openTaskModal && openTaskModal({ date: dateStr } as Task);
@@ -76,26 +89,7 @@ export default function CalendarView({
     <div className="flex flex-col h-full overflow-hidden">
       {/* カレンダーヘッダー */}
       <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="text-xl font-bold text-gray-400 tracking-wide">
-          {currentDate.toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric',
-          })}
-        </h2>
-        <div className="flex gap-2">
-          <button
-            onClick={prevMonth}
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-white/5"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={nextMonth}
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-white/5"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        <MonthSelector currentDate={targetDate} onChange={setTargetDate} />
       </div>
 
       {/* 曜日ヘッダー */}
@@ -131,9 +125,9 @@ export default function CalendarView({
               const day = i + 1;
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-              // この日のタスクをフィルタリング
+              // この日のタスクをフィルタリング (表示対象のタスク群から)
               const dayTasks = sortTasksByStatus(
-                tasks.filter((t) => t.date?.startsWith(dateStr)),
+                displayTasks.filter((t) => t.date?.startsWith(dateStr)),
               );
               const isToday =
                 new Date().toISOString().split('T')[0] === dateStr;
@@ -156,27 +150,40 @@ export default function CalendarView({
                     {day}
                   </div>
                   <div className="flex flex-col gap-0.5 overflow-y-auto noir-scrollbar">
-                    {dayTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        draggable
-                        onDragStart={() => setDraggingTaskId(task.id)}
-                        onClick={() => openTaskModal(task)}
-                        className={`text-[10px] leading-tight p-1 rounded hover:bg-white/10 cursor-pointer transition-all truncate flex items-center justify-between gap-1 group ${draggingTaskId === task.id ? 'opacity-30' : ''}`}
-                        style={{
-                          borderLeftColor: `var(--${task.status.toLowerCase()}-color, #888)`,
-                        }}
-                      >
-                        <div className="flex items-center gap-1 flex-1 min-w-0">
-                          <div
-                            className={`noir-dot ${getStatusColor(task.status)}`}
-                          />
-                          <span className="truncate text-gray-200 overflow-hidden">
-                            {task.title}
-                          </span>
+                    {dayTasks.map((task) => {
+                      // 完了済みタスクかどうかの判定（opacityを下げたりドラッグ不可にするため）
+                      const isCompleted = completedTasks.some(
+                        (ct) => ct.id === task.id,
+                      );
+
+                      return (
+                        <div
+                          key={task.id}
+                          draggable={!isCompleted}
+                          onDragStart={() =>
+                            !isCompleted && setDraggingTaskId(task.id)
+                          }
+                          onClick={() => openTaskModal(task)}
+                          className={`text-[10px] leading-tight p-1 rounded transition-all truncate flex items-center justify-between gap-1 group 
+                            ${isCompleted ? 'opacity-50 cursor-pointer hover:bg-white/5' : 'hover:bg-white/10 cursor-grab active:cursor-grabbing'} 
+                            ${draggingTaskId === task.id ? 'opacity-30' : ''}`}
+                          style={{
+                            borderLeftColor: `var(--${task.status.toLowerCase()}-color, #888)`,
+                          }}
+                        >
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            <div
+                              className={`noir-dot ${getStatusColor(task.status)}`}
+                            />
+                            <span
+                              className={`truncate overflow-hidden ${isCompleted ? 'text-gray-400 line-through' : 'text-gray-200'}`}
+                            >
+                              {task.title}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );

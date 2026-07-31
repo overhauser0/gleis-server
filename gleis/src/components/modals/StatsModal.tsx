@@ -1,15 +1,22 @@
 'use client';
 import React, { useMemo, useEffect } from 'react';
-import { X, Trophy, TrendingUp, CalendarCheck, ArrowRight } from 'lucide-react';
+import {
+  X,
+  TrendingUp,
+  TrendingDown,
+  CalendarCheck,
+  BarChart3,
+} from 'lucide-react';
 import { Task } from '@/types';
 import { getThisWeekMonday } from '@/utils/dateUtils';
+import SimpleList from '@/components/ui/SimpleList';
 
 interface StatsModalProps {
   isOpen: boolean;
   onClose: () => void;
   completedTasks: Task[];
   targetDate: Date; // モーダルを開いた基準日（Homeなら今日、Weeklyならその日）
-  openTaskModal: (task?: Partial<Task>) => void; // タスククリック時のコールバック
+  openTaskModal: (task?: Partial<Task>) => void;
 }
 
 export default function StatsModal({
@@ -82,9 +89,12 @@ export default function StatsModal({
     // グラフの最大値（高さを相対的に計算するため）
     const maxVal = Math.max(...weeklyData, 1);
 
+    const diff = thisWeekTotal - lastWeekTotal;
+
     return {
       thisWeekTotal,
       lastWeekTotal,
+      diff,
       weeklyData,
       maxVal,
       targetDayTasks,
@@ -100,53 +110,87 @@ export default function StatsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* オーバーレイ */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* モーダル本体 */}
-      <div className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scale-up">
+      <div className="relative w-full max-w-md bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scale-up overflow-hidden">
+        {/* 装飾用アンビエントライト */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-neon/10 blur-[50px] pointer-events-none" />
+
         {/* ヘッダー */}
-        <div className="flex items-center justify-between p-5 border-b border-white/5 shrink-0">
+        <div className="relative flex items-center justify-between p-5 border-b border-white/5 shrink-0 z-10">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-5 h-5 text-neon" />
+            <BarChart3 className="w-5 h-5 text-neon" />
             <h2 className="text-lg font-bold text-white tracking-wider">
-              Performance
+              Weekly Performance
             </h2>
           </div>
-          <button onClick={onClose} className="noir-icon-btn">
+          <button
+            onClick={onClose}
+            className="p-2 -mr-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* スクロール領域 */}
-        <div className="p-5 overflow-y-auto noir-scrollbar flex-1 flex flex-col gap-8">
+        <div className="relative p-5 overflow-y-auto noir-scrollbar flex-1 flex flex-col gap-6 z-10">
           {/* サマリー（今週 vs 先週） */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center">
-              <span className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col justify-center">
+              <span className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-2">
                 Last Week
               </span>
               <span className="text-2xl font-black text-gray-500">
                 {stats.lastWeekTotal}
               </span>
             </div>
-            <div className="bg-white/5 border border-neon/30 rounded-xl p-4 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(0,112,243,0.1)]">
-              <span className="text-xs text-neon font-bold tracking-widest uppercase mb-1">
+
+            <div className="bg-white/5 border border-neon/30 rounded-2xl p-4 relative overflow-hidden shadow-[0_0_15px_rgba(0,112,243,0.05)] flex flex-col justify-center">
+              <span className="text-xs text-neon font-bold tracking-widest uppercase mb-2 relative z-10">
                 This Week
               </span>
-              <span className="text-3xl font-black text-white">
-                {stats.thisWeekTotal}
-              </span>
+              <div className="flex items-end gap-3 relative z-10">
+                <span className="text-4xl font-black text-white leading-none">
+                  {stats.thisWeekTotal}
+                </span>
+
+                {/* 差分バッジ */}
+                <div
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border mb-1 ${
+                    stats.diff > 0
+                      ? 'text-green-400 bg-green-400/10 border-green-400/20'
+                      : stats.diff < 0
+                        ? 'text-red-400 bg-red-400/10 border-red-400/20'
+                        : 'text-gray-400 bg-gray-400/10 border-gray-400/20'
+                  }`}
+                >
+                  {stats.diff > 0 ? (
+                    <>
+                      <TrendingUp className="w-2.5 h-2.5" /> +{stats.diff}
+                    </>
+                  ) : stats.diff < 0 ? (
+                    <>
+                      <TrendingDown className="w-2.5 h-2.5" /> {stats.diff}
+                    </>
+                  ) : (
+                    <>±0</>
+                  )}
+                </div>
+              </div>
+              {/* 薄いネオングロー */}
+              <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-neon/20 blur-2xl rounded-full pointer-events-none" />
             </div>
           </div>
 
           {/* 簡易棒グラフ（曜日別） */}
-          <div>
-            <h3 className="text-xs text-gray-500 font-bold tracking-widest uppercase mb-4 text-center">
-              Weekly Activity
+          <div className="bg-white/5 border border-white/5 rounded-2xl p-5">
+            <h3 className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-4 text-center">
+              Activity Chart
             </h3>
-            <div className="flex justify-between h-32 px-2 gap-2">
+            <div className="flex justify-between h-28 px-1 gap-2">
               {stats.weeklyData.map((count, index) => {
                 const heightPercent = (count / stats.maxVal) * 100;
                 return (
@@ -154,19 +198,19 @@ export default function StatsModal({
                     key={index}
                     className="flex flex-col items-center gap-2 flex-1 h-full group"
                   >
-                    {/* 棒の上の数字（ホバー時に明るく） */}
-                    <span className="text-[10px] text-gray-500 group-hover:text-neon transition-colors font-bold">
-                      {count}
+                    {/* 棒の上の数字 */}
+                    <span className="text-[10px] text-gray-500 group-hover:text-neon transition-colors font-bold h-4">
+                      {count > 0 ? count : ''}
                     </span>
                     {/* 棒 */}
-                    <div className="w-full bg-white/5 rounded-md relative flex-1 overflow-hidden">
+                    <div className="w-full max-w-[24px] bg-black/40 rounded-md relative flex-1 overflow-hidden border border-white/5">
                       <div
-                        className="absolute bottom-0 w-full bg-neon shadow-[0_0_10px_rgba(0,112,243,0.4)] transition-all duration-700 ease-out rounded-md"
+                        className="absolute bottom-0 w-full bg-neon shadow-[0_0_10px_rgba(0,112,243,0.5)] transition-all duration-700 ease-out rounded-sm"
                         style={{ height: `${heightPercent}%` }}
                       />
                     </div>
                     {/* 曜日ラベル */}
-                    <span className="text-[10px] text-gray-600 font-bold uppercase">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase mt-1">
                       {weekLabels[index]}
                     </span>
                   </div>
@@ -175,35 +219,18 @@ export default function StatsModal({
             </div>
           </div>
 
-          <hr className="border-white/5" />
-
-          {/* 当該日のタスクリスト */}
-          <div>
-            <h3 className="text-xs text-gray-500 font-bold tracking-widest uppercase mb-4 flex items-center gap-2">
+          {/* 当該日のタスクリスト (SimpleList を利用) */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-xs text-gray-400 font-bold tracking-widest uppercase flex items-center gap-2">
               <CalendarCheck className="w-4 h-4 text-gray-400" />
               Cleared on {stats.targetDateStr}
             </h3>
-            {stats.targetDayTasks.length === 0 ? (
-              <div className="text-center p-4 text-sm text-gray-600 bg-white/5 rounded-xl border border-white/5">
-                No tasks cleared on this date.
-              </div>
-            ) : (
-              <ul className="space-y-2">
-                {stats.targetDayTasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center gap-3 group"
-                    onClick={() => openTaskModal(task)}
-                  >
-                    <Trophy className="w-4 h-4 text-neon shrink-0 opacity-70" />
-                    <span className="text-sm font-medium text-gray-300 truncate grow">
-                      {task.title}
-                    </span>
-                    <ArrowRight className="w-5 h-5 text-gray-600 shrink-0 group-hover:text-neon transition-all md:-translate-x-2 group-hover:translate-x-0" />
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-3">
+              <SimpleList
+                tasks={stats.targetDayTasks}
+                onTaskClick={openTaskModal}
+              />
+            </div>
           </div>
         </div>
       </div>

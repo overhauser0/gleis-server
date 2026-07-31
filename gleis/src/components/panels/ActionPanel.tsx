@@ -377,7 +377,13 @@ export default function ActionPanel({
                   </div>
                 ) : (
                   /* 未読通知がない場合の表示 */
-                  <div className="py-2 flex flex-col items-center justify-center text-zinc-500">
+                  <div
+                    className="py-2 flex flex-col items-center justify-center text-zinc-500"
+                    onClick={() => {
+                      onClose();
+                      onNavigateToNotifications();
+                    }}
+                  >
                     <Bell className="w-6 h-6 mb-2 opacity-20" />
                     <p className="text-xs font-bold">You're all caught up!</p>
                   </div>

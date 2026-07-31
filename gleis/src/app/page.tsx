@@ -5,7 +5,6 @@ import {
   Columns2,
   Settings,
   Lock,
-  Bell,
   Kanban,
   CalendarDays,
   ClipboardPenLine,
@@ -13,34 +12,35 @@ import {
   Terminal,
   FileText,
   Bot,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 
 // --- Components ---
-import AuthView from '@/components/AuthView';
-import HomeView from '@/components/HomeView';
-import WeeklyView from '@/components/WeeklyView';
-import KanbanView from '@/components/KanbanView';
-import CalendarView from '@/components/CalendarView';
-import MeetingView from '@/components/MeetingView';
-import ReviewView from '@/components/ReviewView';
-import NoteView from '@/components/NoteView';
-import AiAgentView from '@/components/AiAgentView';
-import SettingsView from '@/components/SettingsView';
+import AuthView from '@/components/views/AuthView';
+import HeaderView from '@/components/views/HeaderView';
+import HomeView from '@/components/views/HomeView';
+import WeeklyView from '@/components/views/WeeklyView';
+import KanbanView from '@/components/views/KanbanView';
+import CalendarView from '@/components/views/CalendarView';
+import MeetingView from '@/components/views/MeetingView';
+import ReviewView from '@/components/views/ReviewView';
+import NoteView from '@/components/views/NoteView';
+import AiAgentView from '@/components/views/AiAgentView';
+import StatsView from '@/components/views/StatsView';
+import SettingsView from '@/components/views/SettingsView';
 import WakeLockHandler from '@/components/WakeLockHandler';
 import { ToastProvider, useToast } from '@/components/Toast';
 import AlarmHandler from '@/components/AlarmHandler';
-import HeaderView from '@/components/HeaderView';
-import TaskModal from '@/components/TaskModal';
-import StatsModal from '@/components/StatsModal';
-import QuickAlarmModal from '@/components/QuickAlarmModal';
-import VoiceCaptureModal from '@/components/VoiceCaptureModal';
-import ActionPanel from '@/components/ActionPanel';
-import CommandPalette from '@/components/CommandPalette';
-import NotificationsView from '@/components/NotificationsView';
+import TaskModal from '@/components/modals/TaskModal';
+import StatsModal from '@/components/modals/StatsModal';
+import QuickAlarmModal from '@/components/modals/QuickAlarmModal';
+import VoiceCaptureModal from '@/components/modals/VoiceCaptureModal';
+import ActionPanel from '@/components/panels/ActionPanel';
+import CommandPalette from '@/components/modals/CommandPalette';
+import NotificationsView from '@/components/views/NotificationsView';
 
 // --- Types & Utils & Hooks ---
 import { Task, ViewType } from '@/types';
-import { getCurrentYearMonth } from '@/utils/dateUtils';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useIosKeyboardFix } from '@/hooks/useIosKeyboardFix';
 import { useTaskSync } from '@/hooks/useTaskSync';
@@ -310,7 +310,12 @@ export default function Home() {
               { id: 'review', icon: ClipboardPenLine, label: 'Review' },
               { id: 'note', icon: FileText, label: 'Note' },
               { id: 'aiagent', icon: Bot, label: 'Agent' },
-              { id: 'notifications', icon: Bell, label: 'Notifications' },
+              {
+                id: 'stats',
+                icon: ChartNoAxesCombined,
+                label: 'Stats',
+              },
+              /* { id: 'notifications', icon: Bell, label: 'Notifications' }, いらないかな */
               { id: 'settings', icon: Settings, label: 'Settings' },
             ].map((item) => (
               <button
@@ -394,7 +399,10 @@ export default function Home() {
           )}
           {currentView === 'calendar' && (
             <CalendarView
+              appSettings={appSettings}
+              setAppSettings={setAppSettings}
               tasks={tasks}
+              completedTasks={completedTasks}
               loading={isTasksLoading}
               setTasks={setTasks}
               openTaskModal={(task) => openTaskModal(task)}
@@ -407,12 +415,7 @@ export default function Home() {
               openTaskModal={(task) => openTaskModal(task)}
             />
           )}
-          {currentView === 'review' && (
-            <ReviewView
-              initialYearMonth={getCurrentYearMonth()}
-              completedTasks={completedTasks}
-            />
-          )}
+          {currentView === 'review' && <ReviewView />}
           {currentView === 'note' && (
             <NoteView
               onSyncStart={incrementRequest}
@@ -423,6 +426,13 @@ export default function Home() {
             <AiAgentView
               onSyncStart={incrementRequest}
               onSyncEnd={decrementRequest}
+            />
+          )}
+          {currentView === 'stats' && (
+            <StatsView
+              completedTasks={completedTasks}
+              loading={isTasksLoading}
+              openTaskModal={(task) => openTaskModal(task)}
             />
           )}
 

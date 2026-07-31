@@ -1,3 +1,5 @@
+// src/controllers/piece.controller.ts
+
 import { Context } from 'hono';
 import * as pieceService from '../services/piece.service';
 import * as syncService from '../services/sync.service';

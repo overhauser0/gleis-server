@@ -52,7 +52,7 @@ export function useAtlasWebSocket(
         ws.send(
           JSON.stringify({
             type: 'REGISTER_DEVICE',
-            clientType: 'trails',
+            clientType: 'gleis',
             deviceId: currentDeviceId,
             deviceName: deviceName,
           }),

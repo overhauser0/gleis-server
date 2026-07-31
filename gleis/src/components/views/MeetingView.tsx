@@ -2,9 +2,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { FileText, Plus, ChevronRight, Clock, Search } from 'lucide-react';
-import { getStatusColor } from '@/utils/miscellaneousUtils';
-import { getDateFullString, getDateShortString } from '@/utils/dateUtils';
+import { FileText, Plus, Clock, Search } from 'lucide-react';
+import SimpleList from '@/components/ui/SimpleList';
+import { getDateFullString } from '@/utils/dateUtils';
 import { Task } from '@/types';
 
 interface MeetingProps {
@@ -49,63 +49,7 @@ const TaskGroup = ({
         <span className="text-gray-600 font-normal">({tasks.length})</span>
       </h3>
       <div className="space-y-1">
-        {tasks.map((task) => {
-          const fkwList: string[] = (task as any).fkw || [];
-
-          return (
-            <button
-              key={task.id}
-              onClick={() => openTaskModal(task)}
-              className="w-full flex items-center justify-between p-3 group rounded-lg border border-transparent hover:border-white/10 hover:bg-white/5 transition-all"
-            >
-              {/* 1. ステータスドット */}
-              <div className="shrink-0 mr-3 flex items-center justify-center">
-                <div
-                  className={`w-2 h-2 rounded-full transition-colors ${getStatusColor(
-                    task.status,
-                  )}`}
-                />
-              </div>
-
-              {/* 中央コンテンツ */}
-              <div className="flex-1 min-w-0 pr-4 text-left">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h4 className="text-sm font-medium text-gray-200 truncate group-hover:text-white transition-colors">
-                    {task.title || 'Untitled Meeting'}
-                  </h4>
-
-                  {/* 2. FKW チップ表示 */}
-                  {fkwList.length > 0 && (
-                    <div className="flex items-center gap-1 shrink-0 overflow-hidden">
-                      {fkwList.map((kw, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[9px] px-1.5 py-0.5 rounded border border-white/10 text-gray-400 bg-white/5 truncate max-w-20"
-                        >
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {task.note && (
-                  <p className="text-xs text-gray-500 truncate max-w-full">
-                    {task.note}
-                  </p>
-                )}
-              </div>
-
-              {/* 右側: 日付と矢印 */}
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="text-xs font-mono text-gray-600 group-hover:text-gray-400 transition-colors">
-                  {getDateShortString(task.date)}
-                </span>
-                <ChevronRight className="w-4 h-4 text-gray-600 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </div>
-            </button>
-          );
-        })}
+        <SimpleList tasks={tasks} onTaskClick={openTaskModal} />
       </div>
     </div>
   );
