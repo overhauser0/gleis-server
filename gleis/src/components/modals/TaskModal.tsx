@@ -258,6 +258,7 @@ export default function TaskModal({
   const handleShowContent = async (id: string | undefined) => {
     if (!id) return;
     setIsLoadingBlocks(true);
+    onSyncStart();
     try {
       // 1. まず1階層目を取得
       const level1Blocks = await onShowContent(id);
@@ -293,6 +294,7 @@ export default function TaskModal({
       addToast('コンテンツの取得に失敗しました', 'alert');
     } finally {
       setIsLoadingBlocks(false);
+      onSyncEnd();
     }
   };
 
@@ -394,24 +396,6 @@ export default function TaskModal({
             )}
           </div>
 
-          {/* コンテンツ表示ボタン */}
-          {internalMode === 'edit' &&
-            task?.id &&
-            editForm.source === 'NOTION' && (
-              <button
-                onClick={() => handleShowContent(task.id)}
-                disabled={isLoadingBlocks}
-                className={`noir-icon-btn ${showBlocks ? 'bg-white/10 text-white' : ''}`}
-                title="ページ内容を表示"
-              >
-                {isLoadingBlocks ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <FileText className="w-5 h-5" />
-                )}
-              </button>
-            )}
-
           {/* Notion Link */}
           {editForm.source === 'NOTION' && task?.id && (
             <a
@@ -464,7 +448,23 @@ export default function TaskModal({
                     <Trash2 className="w-4 h-4" />
                     削除
                   </button>
-
+                  {/* コンテンツ表示ボタン */}
+                  {internalMode === 'edit' &&
+                    task?.id &&
+                    editForm.source === 'NOTION' && (
+                      <button
+                        onClick={() => {
+                          setIsMoreMenuOpen(false);
+                          handleShowContent(task.id);
+                        }}
+                        disabled={isLoadingBlocks}
+                        className="w-full text-left px-4 py-3 text-sm text-orange-400 hover:bg-white/10 flex items-center gap-3 transition-colors border-t border-white/5"
+                        title="ページ内容を表示"
+                      >
+                        <FileText className="w-5 h-5" />
+                        ページ内容を表示
+                      </button>
+                    )}
                   {editForm.source === 'LOCAL' && (
                     <button
                       onClick={() => {

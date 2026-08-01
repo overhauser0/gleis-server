@@ -22,6 +22,7 @@ import {
   ArrowRight,
   FileText,
   Bot,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 import { ViewType, Task } from '@/types';
 import { atlasFetch } from '@/utils/api';
@@ -120,6 +121,12 @@ export default function CommandPalette({
         label: 'Go to Agent',
         icon: Bot,
         action: () => onNavigate('aiagent'),
+      },
+      {
+        id: 'nav-stats',
+        label: 'Go to Stats',
+        icon: ChartNoAxesCombined,
+        action: () => onNavigate('stats'),
       },
       {
         id: 'nav-notifications',

@@ -9,6 +9,10 @@ import {
   Zap,
   CheckCircle2,
   SportShoe,
+  PieChart,
+  Clock,
+  Circle,
+  PlayCircle,
 } from 'lucide-react';
 import SimpleList from '@/components/ui/SimpleList';
 import MonthSelector from '@/components/ui/MonthSelector';
@@ -17,12 +21,14 @@ import { Task } from '@/types';
 
 interface StatsViewProps {
   completedTasks: Task[];
+  tasks: Task[];
   loading: boolean;
   openTaskModal: (task?: Partial<Task>) => void;
 }
 
 export default function StatsView({
   completedTasks,
+  tasks,
   loading,
   openTaskModal,
 }: StatsViewProps) {
@@ -57,7 +63,8 @@ export default function StatsView({
 
     const thisMonthDaily = new Array(daysInThisMonth).fill(0);
     const lastMonthDaily = new Array(daysInLastMonth).fill(0);
-    const thisMonthTasks: Task[] = [];
+    const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+    const thisMonthCompletedTasks: Task[] = [];
 
     completedTasks.forEach((task) => {
       if (!task.date) return;
@@ -68,15 +75,42 @@ export default function StatsView({
 
       if (tYear === currentYear && tMonth === currentMonth) {
         thisMonthDaily[tDate - 1]++;
-        thisMonthTasks.push(task);
+        thisMonthCompletedTasks.push(task);
+
+        // 曜日の集計
+        const jsDay = taskDate.getDay();
+        const mondayIndex = jsDay === 0 ? 6 : jsDay - 1;
+        weekdayCounts[mondayIndex]++;
       } else if (tYear === lastMonthYear && tMonth === lastMonth) {
         lastMonthDaily[tDate - 1]++;
       }
     });
 
-    thisMonthTasks.sort(
+    thisMonthCompletedTasks.sort(
       (a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime(),
     );
+
+    const thisMonthIncompletedTasks: Task[] = [];
+
+    tasks.forEach((task) => {
+      if (!task.date) return;
+      const taskDate = new Date(taskDateStr(task.date));
+      const tYear = taskDate.getFullYear();
+      const tMonth = taskDate.getMonth();
+      if (tYear === currentYear && tMonth === currentMonth) {
+        thisMonthIncompletedTasks.push(task);
+      }
+    });
+
+    // 未完了タスクのうち、今月に関連するもの（または全未完了アクティブタスク）のステータス集計
+
+    const doneCount = thisMonthCompletedTasks.length;
+    const inProgressCount = thisMonthIncompletedTasks.length;
+    const totalActiveTasks = inProgressCount + doneCount;
+    const completionRate =
+      totalActiveTasks > 0
+        ? Math.round((doneCount / totalActiveTasks) * 100)
+        : 0;
 
     // 累積グラフ用のデータ生成
     let thisMonthCumulative = 0;
@@ -133,22 +167,29 @@ export default function StatsView({
       todayDate,
       firstDayOfWeek,
       thisMonthDaily,
-      thisMonthTasks,
+      weekdayCounts,
+      thisMonthCompletedTasks,
       averagePace,
       peakCount,
       peakDateNum,
+      inProgressCount,
+      doneCount,
+      totalActiveTasks,
+      completionRate,
     };
-  }, [completedTasks, targetDate]);
+  }, [completedTasks, tasks, targetDate]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full text-gray-400 animate-pulse">
-        Loading Dashboard...
+        Loading Stats...
       </div>
     );
   }
 
   const blanks = Array.from({ length: stats.firstDayOfWeek });
+  const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekTotalSum = stats.thisMonthDaily.reduce((acc, cur) => acc + cur, 0);
 
   const getContributionColor = (count: number) => {
     if (count === 0) return 'bg-white/5 border border-white/10';
@@ -255,7 +296,7 @@ export default function StatsView({
             Activity
           </h3>
 
-          <div className="mt-2 flex-1 flex flex-col max-w-sm w-full mx-auto">
+          <div className="mt-2 flex-1 flex flex-col max-w-2xs w-full mx-auto">
             <div className="grid grid-cols-7 gap-1.5 mb-2">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
                 <div
@@ -348,6 +389,35 @@ export default function StatsView({
               />
             </svg>
 
+            {/* 各データポイントにツールチップを配置 */}
+            {stats.thisMonthTrend.map((val, i) => {
+              if (val === null) return null;
+              const x = (i / (stats.daysInThisMonth - 1)) * 100;
+              const y = (val / stats.maxVal) * 100;
+              const dateNum = i + 1;
+              const tooltipText = `${stats.currentMonthNum}/${dateNum}: ${val} tasks`;
+
+              return (
+                <div
+                  key={i}
+                  className="absolute -translate-x-1/2 translate-y-1/2 w-4 h-4 flex items-center justify-center cursor-pointer group"
+                  style={{
+                    left: `${x}%`,
+                    bottom: `${y}%`,
+                  }}
+                >
+                  {/* ホバーしたときだけうっすら光るポイント（普段は透明でもOK） */}
+                  <div className="w-1.5 h-1.5 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_8px_rgba(0,112,243,1)]" />
+
+                  {/* ツールチップ本体の表示 */}
+                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1a1a1a] border border-white/15 text-gray-200 text-[10px] font-mono rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.8)] whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                    {tooltipText}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1a1a]" />
+                  </div>
+                </div>
+              );
+            })}
+
             {/* 現在月の時だけ「現在地」のドットを表示 */}
             {stats.isCurrentMonth &&
               stats.thisMonthTrend[stats.todayDate - 1] !== null && (
@@ -363,6 +433,86 @@ export default function StatsView({
           </div>
         </div>
       </div>
+      {/* 3行目: 新規追加「Progress Status」カード (比率 4 : 6) */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 shrink-0">
+        {/* 左側 (比率4) */}
+        <div className="md:col-span-2 hidden md:flex bg-white/5 border border-white/5 rounded-2xl p-6 flex-col justify-center items-center text-gray-600 text-xs tracking-widest uppercase">
+          <div className="w-full mt-2 pt-4 border-t border-white/5 flex flex-col gap-2">
+            <span className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+              Day of Week Breakdown
+            </span>
+            <div className="space-y-2">
+              {weekLabels.map((day, idx) => {
+                const count = stats.weekdayCounts[idx] || 0;
+                const percent =
+                  weekTotalSum > 0
+                    ? Math.round((count / weekTotalSum) * 100)
+                    : 0;
+
+                return (
+                  <div key={day} className="flex items-center gap-2 text-xs">
+                    <span className="w-8 font-mono text-gray-500 text-[11px]">
+                      {day}
+                    </span>
+                    <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <div
+                        className="h-full bg-neon shadow-[0_0_6px_rgba(0,112,243,0.6)] transition-all duration-500 rounded-full"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <span className="w-24 text-right font-mono text-gray-400 text-[10px]">
+                      {count}{' '}
+                      <span className="text-gray-600">({percent}%)</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 右側 (比率6): Progress Status カード */}
+        <div className="md:col-span-3 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-neon" />
+              Task Progress Status
+            </h3>
+            <span className="text-xs font-mono text-neon font-bold bg-neon/10 px-2 py-0.5 rounded border border-neon/30">
+              {stats.completionRate}% Done
+            </span>
+          </div>
+
+          {/* 全体プログレスバー */}
+          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden flex border border-white/5">
+            <div
+              className="h-full bg-neon shadow-[0_0_8px_rgba(0,112,243,0.6)] transition-all duration-700"
+              style={{ width: `${stats.completionRate}%` }}
+            />
+          </div>
+
+          {/* ステータス別の内訳グリッド */}
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <div className="bg-black/20 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
+              <span className="text-[10px] text-yellow-500/80 font-bold tracking-wider uppercase flex items-center gap-1">
+                <PlayCircle className="w-3 h-3 text-yellow-400" /> In Progress
+              </span>
+              <span className="text-xl font-bold text-yellow-400">
+                {stats.inProgressCount}
+              </span>
+            </div>
+
+            <div className="bg-black/20 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
+              <span className="text-[10px] text-neon font-bold tracking-wider uppercase flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-neon" /> Done (Month)
+              </span>
+              <span className="text-xl font-bold text-white">
+                {stats.doneCount}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col gap-4 shrink-0">
         <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center justify-between">
@@ -371,11 +521,16 @@ export default function StatsView({
             Cleared in {stats.currentMonthName}
           </span>
           <span className="text-xs bg-white/5 px-2 py-1 rounded-full text-gray-500">
-            {stats.thisMonthTasks.length} items
+            {stats.thisMonthCompletedTasks.length} items
           </span>
         </h3>
 
-        <SimpleList tasks={stats.thisMonthTasks} onTaskClick={openTaskModal} />
+        <div className="overflow-y-auto noir-scrollbar max-h-72">
+          <SimpleList
+            tasks={stats.thisMonthCompletedTasks}
+            onTaskClick={openTaskModal}
+          />
+        </div>
       </div>
     </div>
   );

@@ -431,6 +431,7 @@ export default function Home() {
           {currentView === 'stats' && (
             <StatsView
               completedTasks={completedTasks}
+              tasks={tasks}
               loading={isTasksLoading}
               openTaskModal={(task) => openTaskModal(task)}
             />

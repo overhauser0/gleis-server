@@ -203,7 +203,7 @@ export default function StatsModal({
                       {count > 0 ? count : ''}
                     </span>
                     {/* 棒 */}
-                    <div className="w-full max-w-[24px] bg-black/40 rounded-md relative flex-1 overflow-hidden border border-white/5">
+                    <div className="w-full max-w-6 bg-black/40 rounded-md relative flex-1 overflow-hidden border border-white/5">
                       <div
                         className="absolute bottom-0 w-full bg-neon shadow-[0_0_10px_rgba(0,112,243,0.5)] transition-all duration-700 ease-out rounded-sm"
                         style={{ height: `${heightPercent}%` }}
@@ -219,7 +219,7 @@ export default function StatsModal({
             </div>
           </div>
 
-          {/* 当該日のタスクリスト (SimpleList を利用) */}
+          {/* 当該日のタスクリスト */}
           <div className="flex flex-col gap-3">
             <h3 className="text-xs text-gray-400 font-bold tracking-widest uppercase flex items-center gap-2">
               <CalendarCheck className="w-4 h-4 text-gray-400" />
