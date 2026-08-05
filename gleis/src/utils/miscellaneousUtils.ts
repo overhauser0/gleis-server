@@ -1,3 +1,5 @@
+import { TaskStatus } from '@/types/index';
+
 export const WEEK_DAYS = [
   'Mon',
   'Tue',
@@ -18,7 +20,7 @@ export const STATUS_ORDER: Record<string, number> = {
   Wrapper: 4,
 };
 
-export const getStatusColor = (status: string) => {
+export const getStatusColor = (status: TaskStatus) => {
   if (status === 'INBOX') return 'bg-red-500';
   if (status === 'Waiting') return 'bg-orange-500';
   if (status === 'Going') return 'bg-purple-500';

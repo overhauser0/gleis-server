@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { Plus, ExternalLink, HardDrive, Calendar } from 'lucide-react';
-import { Task } from '@/types';
+import { Task, TaskStatus } from '@/types';
+import Card from '@/components/ui/Card';
 import { getStatusColor, getNotionLinkById } from '@/utils/miscellaneousUtils';
 import { atlasFetch } from '@/utils/api';
 
 // カンバンで表示するステータスに 'Done' を追加
-const KANBAN_COLUMNS = ['INBOX', 'Waiting', 'Going', 'Done'];
+const KANBAN_COLUMNS = ['INBOX', 'Waiting', 'Going', 'Done'] as const;
 
 interface Props {
   tasks: Task[];
@@ -23,7 +24,7 @@ export default function KanbanView({
 }: Props) {
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
 
-  const onDrop = async (targetStatus: string) => {
+  const onDrop = async (targetStatus: TaskStatus) => {
     if (!draggingTaskId) return;
     const task = tasks.find((t) => t.id === draggingTaskId);
     if (!task || task.status === targetStatus) {
@@ -105,11 +106,11 @@ export default function KanbanView({
                   )}
 
                   {colTasks.map((task) => (
-                    <div
+                    <Card
                       key={task.id}
                       draggable
                       onDragStart={() => setDraggingTaskId(task.id)}
-                      className={`p-3.5 rounded-xl noir-glass border border-white/5 hover:border-white/10 cursor-grab active:cursor-grabbing transition-all group flex flex-col gap-3 relative z-10 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : ''}`}
+                      className={`cursor-grab active:cursor-grabbing group flex flex-col gap-3 z-10 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : ''}`}
                     >
                       {/* --- 1行目: ステータスドット + タイトル + Notionリンク --- */}
                       <div className="flex items-center gap-2.5">
@@ -160,7 +161,7 @@ export default function KanbanView({
                           Detail
                         </button>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </div>

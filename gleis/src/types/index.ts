@@ -1,7 +1,15 @@
+export type TaskStatus =
+  | 'INBOX'
+  | 'Waiting'
+  | 'Going'
+  | 'Done'
+  | 'Wrapper'
+  | 'Canceled';
+
 export interface Task {
   id: string;
   title: string;
-  status: string;
+  status: TaskStatus;
   note: string;
   date: string | null;
   source: 'NOTION' | 'LOCAL';

@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, ExternalLink, HardDrive } from 'lucide-react';
 import { Task } from '@/types';
+import Card from '@/components/ui/Card';
 import {
   mergeNewDateWithOriginalTime,
   isOverdue,
@@ -202,11 +203,13 @@ export default function WeeklyView({
                 </div>
                 <div className="flex-1 overflow-y-auto pr-2 pb-12 flex flex-col gap-3 noir-scrollbar">
                   {colTasks.map((task) => (
-                    <div
+                    <Card
                       key={task.id}
                       draggable
+                      hoverable
                       onDragStart={() => setDraggingTaskId(task.id)}
-                      className={`p-3.5 rounded-xl noir-glass border border-white/5 hover:border-white/10 cursor-grab active:cursor-grabbing transition-all group relative flex flex-col gap-3 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : 'opacity-100'}`}
+                      className={`cursor-grab active:cursor-grabbing group flex flex-col gap-3 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : 'opacity-100'}`}
+                      // `noir-glass border border-white/5 hover:border-white/10 cursor-grab active:cursor-grabbing transition-all group relative flex flex-col gap-3 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : 'opacity-100'}`
                     >
                       <div
                         className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-full ${getStatusColor(task.status)} opacity-50`}
@@ -260,7 +263,7 @@ export default function WeeklyView({
                           Detail
                         </button>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </div>

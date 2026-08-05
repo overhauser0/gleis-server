@@ -10,10 +10,10 @@ import {
   CheckCircle2,
   SportShoe,
   PieChart,
-  Clock,
-  Circle,
+  ChartBar,
   PlayCircle,
 } from 'lucide-react';
+import Card from '@/components/ui/Card';
 import SimpleList from '@/components/ui/SimpleList';
 import MonthSelector from '@/components/ui/MonthSelector';
 import Tooltip from '@/components/ui/Tooltip';
@@ -207,7 +207,11 @@ export default function StatsView({
 
       {/* KPI & Insights */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 shrink-0">
-        <div className="md:col-span-2 bg-white/5 border border-neon/30 rounded-2xl p-6 relative overflow-hidden shadow-[0_0_20px_rgba(0,112,243,0.05)] flex flex-col justify-center">
+        <Card
+          size="lg"
+          active
+          className="md:col-span-2 overflow-hidden flex flex-col justify-center"
+        >
           <div className="relative z-10 flex flex-col gap-2">
             <span className="text-xs text-neon font-bold tracking-widest uppercase flex items-center gap-2">
               <CalendarDays className="w-4 h-4" />
@@ -248,9 +252,12 @@ export default function StatsView({
             </div>
           </div>
           <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-neon/20 blur-3xl rounded-full pointer-events-none" />
-        </div>
+        </Card>
 
-        <div className="md:col-span-3 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col justify-center gap-5">
+        <Card
+          size="lg"
+          className="md:col-span-3 flex flex-col justify-center gap-5"
+        >
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1 flex items-center gap-1.5">
@@ -285,12 +292,12 @@ export default function StatsView({
               </span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* グラフ関連 */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 shrink-0">
-        <div className="md:col-span-2 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+        <Card size="lg" className="md:col-span-2 flex flex-col gap-4">
           <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center gap-2">
             <Grid className="w-4 h-4 text-neon" />
             Activity
@@ -329,9 +336,9 @@ export default function StatsView({
               })}
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="md:col-span-3 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col gap-6">
+        <Card size="lg" className="md:col-span-3 flex flex-col gap-6">
           <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center gap-2">
             <SportShoe className="w-3.5 h-3.5 text-neon" />
             <span>Pace Comparison</span>
@@ -431,48 +438,52 @@ export default function StatsView({
                 />
               )}
           </div>
-        </div>
+        </Card>
       </div>
       {/* 3行目: 新規追加「Progress Status」カード (比率 4 : 6) */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 shrink-0">
         {/* 左側 (比率4) */}
-        <div className="md:col-span-2 hidden md:flex bg-white/5 border border-white/5 rounded-2xl p-6 flex-col justify-center items-center text-gray-600 text-xs tracking-widest uppercase">
-          <div className="w-full mt-2 pt-4 border-t border-white/5 flex flex-col gap-2">
-            <span className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+        <Card
+          size="lg"
+          className="md:col-span-2 flex flex-col justify-between gap-4"
+        >
+          <div className="flex items-center">
+            <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center gap-2">
+              <ChartBar className="w-4 h-4 text-neon" />
               Day of Week Breakdown
-            </span>
-            <div className="space-y-2">
-              {weekLabels.map((day, idx) => {
-                const count = stats.weekdayCounts[idx] || 0;
-                const percent =
-                  weekTotalSum > 0
-                    ? Math.round((count / weekTotalSum) * 100)
-                    : 0;
-
-                return (
-                  <div key={day} className="flex items-center gap-2 text-xs">
-                    <span className="w-8 font-mono text-gray-500 text-[11px]">
-                      {day}
-                    </span>
-                    <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <div
-                        className="h-full bg-neon shadow-[0_0_6px_rgba(0,112,243,0.6)] transition-all duration-500 rounded-full"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                    <span className="w-24 text-right font-mono text-gray-400 text-[10px]">
-                      {count}{' '}
-                      <span className="text-gray-600">({percent}%)</span>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            </h3>
           </div>
-        </div>
+          <div className="w-full space-y-2">
+            {weekLabels.map((day, idx) => {
+              const count = stats.weekdayCounts[idx] || 0;
+              const percent =
+                weekTotalSum > 0 ? Math.round((count / weekTotalSum) * 100) : 0;
+
+              return (
+                <div key={day} className="flex items-center gap-2 text-xs">
+                  <span className="w-8 font-mono text-gray-500 text-[11px]">
+                    {day}
+                  </span>
+                  <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div
+                      className="h-full bg-neon shadow-[0_0_6px_rgba(0,112,243,0.6)] transition-all duration-500 rounded-full"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <span className="w-24 text-right font-mono text-gray-400 text-[10px]">
+                    {count} <span className="text-gray-600">({percent}%)</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
 
         {/* 右側 (比率6): Progress Status カード */}
-        <div className="md:col-span-3 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+        <Card
+          size="lg"
+          className="md:col-span-3 flex flex-col justify-between gap-4"
+        >
           <div className="flex items-center justify-between">
             <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center gap-2">
               <PieChart className="w-4 h-4 text-neon" />
@@ -511,10 +522,10 @@ export default function StatsView({
               </span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col gap-4 shrink-0">
+      <Card size="lg" className="flex flex-col gap-4 shrink-0">
         <h3 className="text-sm text-gray-300 font-bold tracking-widest uppercase flex items-center justify-between">
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-gray-400" />
@@ -531,7 +542,7 @@ export default function StatsView({
             onTaskClick={openTaskModal}
           />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
