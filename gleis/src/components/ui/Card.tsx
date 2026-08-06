@@ -25,10 +25,10 @@ export default function Card({
 
   // アクティブ & ホバー効果
   const activeStyle = active
-    ? 'border-neon/30 shadow-[0_0_20px_rgba(0,112,243,0.05)]'
+    ? '!border-neon/30 shadow-[0_0_20px_rgba(0,112,243,0.05)]'
     : '';
   const hoverStyle = hoverable
-    ? 'border-neon/30 hover:shadow-[0_0_20px_rgba(0,112,243,0.05)] cursor-pointer'
+    ? 'hover:border-neon/30 hover:shadow-[0_0_20px_rgba(0,112,243,0.05)] cursor-pointer'
     : '';
 
   return (
