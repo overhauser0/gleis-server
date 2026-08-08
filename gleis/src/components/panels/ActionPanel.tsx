@@ -18,7 +18,7 @@ import {
   ServerCrash,
   Check,
 } from 'lucide-react';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/components/ui/Toast';
 
 interface Props {
   isOpen: boolean;

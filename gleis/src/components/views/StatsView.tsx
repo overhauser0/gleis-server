@@ -199,7 +199,7 @@ export default function StatsView({
   };
 
   return (
-    <div className="flex flex-col h-full p-4 overflow-y-auto noir-scrollbar gap-6 pb-24">
+    <div className="flex flex-col h-full overflow-y-auto noir-scrollbar gap-6 pb-24">
       {/* ページネーション（月選択） */}
       <div className="shrink-0 mb-2">
         <MonthSelector currentDate={targetDate} onChange={setTargetDate} />
@@ -470,8 +470,8 @@ export default function StatsView({
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-24 text-right font-mono text-gray-400 text-[10px]">
-                    {count} <span className="text-gray-600">({percent}%)</span>
+                  <span className="w-6 text-right font-mono text-gray-400 text-[10px]">
+                    {count}
                   </span>
                 </div>
               );

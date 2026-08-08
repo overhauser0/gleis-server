@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Sparkles, Cpu, Loader2, X, Copy, Trash2 } from 'lucide-react';
 import { atlasFetch } from '@/utils/api';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/components/ui/Toast';
 
 // ==========================================
 // 1. Types

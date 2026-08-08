@@ -16,7 +16,7 @@ export default function AuthView({ onLogin }: AuthViewProps) {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/verify`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify`,
         {
           method: 'POST',
           headers: {

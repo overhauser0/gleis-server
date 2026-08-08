@@ -21,7 +21,7 @@ import { Task, ViewType, isViewType } from '@/types';
 import { getStatusColor, getNotionLinkById } from '@/utils/miscellaneousUtils';
 import { getDateString } from '@/utils/dateUtils';
 import { atlasFetch } from '@/utils/api';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/components/ui/Toast';
 import { parseGleisLink } from '@/utils/schemeUtils';
 
 interface TaskModalProps {

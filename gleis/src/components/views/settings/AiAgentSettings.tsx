@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Cpu, Plus, Trash2, Save, X, Edit2 } from 'lucide-react';
 import { atlasFetch } from '@/utils/api';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/components/ui/Toast';
 
 export interface Agent {
   id: string;

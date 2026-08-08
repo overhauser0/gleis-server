@@ -62,7 +62,7 @@ export default function SettingsView({
       </div>
 
       {/* --- Tab Content Area --- */}
-      <div className="flex-1 px-4 pb-20 overflow-y-auto noir-scrollbar">
+      <div className="flex-1 px-4 pt-4 pb-20 overflow-y-auto noir-scrollbar">
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           {activeTab === 'general' && (
             <GeneralSettings

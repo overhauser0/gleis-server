@@ -13,7 +13,7 @@ import {
   PenLine,
 } from 'lucide-react';
 import { atlasFetch } from '@/utils/api';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/components/ui/Toast';
 
 // ==========================================
 // 1. Types

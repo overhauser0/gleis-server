@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { Plus, ExternalLink, HardDrive, Calendar } from 'lucide-react';
+import { ExternalLink, HardDrive, Calendar } from 'lucide-react';
 import { Task, TaskStatus } from '@/types';
 import Card from '@/components/ui/Card';
+import FAB from '@/components/ui/FAB';
+import { getDateShortString } from '@/utils/dateUtils';
 import { getStatusColor, getNotionLinkById } from '@/utils/miscellaneousUtils';
 import { atlasFetch } from '@/utils/api';
 
@@ -149,9 +151,7 @@ export default function KanbanView({
                       <div className="flex items-center justify-between mt-auto h-6">
                         <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
                           <Calendar className="w-3 h-3" />
-                          <span>
-                            {task.date ? task.date.split('T')[0] : 'No date'}
-                          </span>
+                          <span>{getDateShortString(task.date)}</span>
                         </div>
 
                         <button
@@ -169,12 +169,8 @@ export default function KanbanView({
           })
         )}
       </div>
-      <button
-        onClick={() => openTaskModal()}
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-neon rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(0,112,243,0.5)] hover:scale-105 transition-transform z-40 border border-white/20"
-      >
-        <Plus className="w-8 h-8" />
-      </button>
+
+      <FAB onClick={() => openTaskModal()} />
     </>
   );
 }

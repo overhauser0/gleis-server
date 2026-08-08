@@ -29,7 +29,7 @@ import AiAgentView from '@/components/views/AiAgentView';
 import StatsView from '@/components/views/StatsView';
 import SettingsView from '@/components/views/SettingsView';
 import WakeLockHandler from '@/components/WakeLockHandler';
-import { ToastProvider, useToast } from '@/components/Toast';
+import { ToastProvider, useToast } from '@/components/ui/Toast';
 import AlarmHandler from '@/components/AlarmHandler';
 import TaskModal from '@/components/modals/TaskModal';
 import StatsModal from '@/components/modals/StatsModal';

@@ -8,6 +8,9 @@ import {
   getNotionLinkById,
 } from '@/utils/miscellaneousUtils';
 import { getDateFullString } from '@/utils/dateUtils';
+import DateSelector from '@/components/ui/DateSelector';
+import FAB from '@/components/ui/FAB';
+import Card from '@/components/ui/Card';
 
 interface HomeViewProps {
   tasks: Task[];
@@ -22,24 +25,23 @@ export default function HomeView({
   openTaskModal,
   onOpenStats,
 }: HomeViewProps) {
-  const today = new Date();
+  // 1. 日付選択のステート（デフォルトは今日）
+  const [targetDate, setTargetDate] = useState(new Date());
 
-  // --- 1. フィルタリング用のJST日付文字列 (YYYY-MM-DD) の生成 ---
-  const todayString = useMemo(() => {
-    return getDateFullString(today, 'hyphen');
-  }, [today]);
+  // 選択された日付のJST文字列 (YYYY-MM-DD)
+  const targetDateString = useMemo(() => {
+    return getDateFullString(targetDate, 'hyphen');
+  }, [targetDate]);
 
-  // --- 2. 1年の進捗計算 ---
+  // 2. 1年の進捗計算（選択中の日付を基準）
   const yearProgress = useMemo(() => {
-    const jstString = today.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' });
-    const jstDate = new Date(jstString);
-    const currentYear = jstDate.getFullYear();
+    const currentYear = targetDate.getFullYear();
     const start = new Date(currentYear, 0, 1).getTime();
     const end = new Date(currentYear + 1, 0, 1).getTime();
-    const now = jstDate.getTime();
+    const now = targetDate.getTime();
     const progress = (now - start) / (end - start);
     return Math.floor(Math.max(0, Math.min(100, progress * 100)));
-  }, [today]);
+  }, [targetDate]);
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
@@ -50,26 +52,36 @@ export default function HomeView({
     return () => clearTimeout(timer);
   }, [yearProgress]);
 
-  // 今日のタスク（完了していないもの）をフィルタリング
-  const todaysTasks = tasks.filter(
+  // 選択した日のタスク（完了していないもの）をフィルタリング
+  const targetTasks = tasks.filter(
     (task) =>
-      task.date && task.date.startsWith(todayString) && task.status !== 'Done',
+      task.date &&
+      task.date.startsWith(targetDateString) &&
+      task.status !== 'Done',
   );
-  const sortedTodaysTasks = sortTasksByStatus(todaysTasks);
+  const sortedTargetTasks = sortTasksByStatus(targetTasks);
 
-  const completedTodayTasks = completedTasks.filter(
+  // 選択した日の完了済みタスク
+  const completedTargetTasks = completedTasks.filter(
     (task) =>
-      task.date && task.date.startsWith(todayString) && task.status === 'Done',
+      task.date &&
+      task.date.startsWith(targetDateString) &&
+      task.status === 'Done',
   );
 
   return (
-    <div className="p-4 md:p-8 animate-fade-in flex-1 flex flex-col h-full min-h-0">
-      {/* --- ヘッダー：アイコン・日付・年の進捗バー --- */}
-      <header className="shrink-0 mb-8 pb-6 border-b border-white/10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        {/* 右側：1年の進捗バー */}
-        <div className="w-full md:w-64 flex flex-col gap-2">
+    <div className="px-4 animate-fade-in flex-1 flex flex-col h-full min-h-0 relative">
+      {/* --- 1. 日付セレクター --- */}
+      <div className="shrink-0 mb-6">
+        <DateSelector currentDate={targetDate} onChange={setTargetDate} />
+      </div>
+
+      {/* --- 2. ミニStatsカード (1年の進捗 ＆ その日の完了数) --- */}
+      <div className="shrink-0 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 1年の進捗カード */}
+        <Card size="sm" className="flex flex-col justify-center gap-3">
           <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-500 uppercase">
-            <span>{today.getFullYear()} Progress</span>
+            <span>{targetDate.getFullYear()} Progress</span>
             <span className="text-neon">{yearProgress}%</span>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
@@ -78,70 +90,63 @@ export default function HomeView({
               style={{ width: `${animatedProgress}%` }}
             />
           </div>
-        </div>
-      </header>
+        </Card>
 
-      {/* --- ショートカット & ステータス --- */}
-      <section className="shrink-0 mb-8">
-        <div className="flex items-center justify-between">
-          {/* 左側: 新規タスクボタン */}
-          <button
-            onClick={() => openTaskModal()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
-          >
-            <Plus className="w-5 h-5 text-neon group-hover:scale-110 transition-transform" />
-            <span className="text-sm font-medium text-gray-300 group-hover:text-white">
-              New Task
-            </span>
-          </button>
-
-          {/* 右側: 本日の完了タスク数 (読み取り専用のバッジデザイン) */}
-          <button
-            onClick={onOpenStats}
-            className="flex items-center gap-2 px-2 text-gray-400 transition-all duration-500"
-          >
-            <Award
-              className={`w-5 h-5 transition-all duration-500 ${
-                completedTodayTasks.length > 0
-                  ? 'text-neon drop-shadow-[0_0_8px_rgba(0,112,243,0.6)] scale-110'
-                  : 'text-gray-600'
+        {/* 完了タスク数カード（クリックでStatsViewへ） */}
+        <Card
+          size="sm"
+          hoverable
+          onClick={onOpenStats}
+          className="flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`p-2 rounded-lg transition-colors duration-500 ${
+                completedTargetTasks.length > 0
+                  ? 'bg-neon/10 text-neon'
+                  : 'bg-white/5 text-gray-500'
               }`}
-            />
-            <span className="text-xs font-bold tracking-widest uppercase">
+            >
+              <Award className="w-5 h-5" />
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase text-gray-400 group-hover:text-gray-300 transition-colors">
               Cleared
-              <span
-                className={`text-lg ml-2 transition-colors duration-500 ${
-                  completedTodayTasks.length > 0
-                    ? 'text-white font-black'
-                    : 'text-gray-600 font-bold'
-                }`}
-              >
-                {completedTodayTasks.length}
-              </span>
             </span>
-          </button>
-        </div>
-      </section>
+          </div>
+          <span
+            className={`text-2xl transition-colors duration-500 ${
+              completedTargetTasks.length > 0
+                ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'
+                : 'text-gray-600 font-bold'
+            }`}
+          >
+            {completedTargetTasks.length}
+          </span>
+        </Card>
+      </div>
 
-      {/* --- 今日のタスク --- */}
+      {/* --- 3. メインタスクリスト --- */}
       <section className="flex-1 flex flex-col min-h-0">
         <h2 className="shrink-0 text-sm font-bold tracking-widest text-gray-500 uppercase mb-4 flex items-center gap-2">
-          Today's Tasks
+          Target Tasks
           <span className="bg-white/10 text-gray-300 px-2 py-0.5 rounded-full text-xs">
-            {sortedTodaysTasks.length}
+            {sortedTargetTasks.length}
           </span>
         </h2>
-        <div className="flex-1 overflow-y-auto noir-scrollbar pr-2 pb-4 grid gap-3 content-start">
-          {sortedTodaysTasks.length === 0 ? (
-            <div className="p-8 rounded-2xl noir-glass border border-white/5 text-center text-gray-500">
-              No tasks for today. Take a rest!
+
+        <div className="flex-1 overflow-y-auto noir-scrollbar pr-2 pb-24 grid gap-3 content-start">
+          {sortedTargetTasks.length === 0 ? (
+            <div className="p-8 rounded-2xl bg-white/5 border border-white/5 text-center text-gray-500 text-sm">
+              No tasks for this day. Take a rest!
             </div>
           ) : (
-            sortedTodaysTasks.map((task) => (
-              <div
+            sortedTargetTasks.map((task) => (
+              <Card
                 key={task.id}
+                size="sm"
+                hoverable
                 onClick={() => openTaskModal(task)}
-                className="group flex items-center justify-between p-4 rounded-xl noir-glass border border-white/5 hover:border-white/20 cursor-pointer transition-all"
+                className="flex items-center justify-between group"
               >
                 <div className="flex items-center gap-4">
                   <div className={`noir-dot ${getStatusColor(task.status)}`} />
@@ -169,11 +174,14 @@ export default function HomeView({
                     <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-neon transition-all md:-translate-x-2 group-hover:translate-x-0" />
                   </div>
                 </div>
-              </div>
+              </Card>
             ))
           )}
         </div>
       </section>
+
+      {/* --- 4. FAB (Floating Action Button) --- */}
+      <FAB onClick={() => openTaskModal()} />
     </div>
   );
 }
