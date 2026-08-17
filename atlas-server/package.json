@@ -8,6 +8,7 @@
     "@google/generative-ai": "^0.17.0",
     "@hono/node-server": "^1.11.1",
     "@notionhq/client": "^5.22.0",
+    "axios": "^1.19.0",
     "dotenv": "^16.4.5",
     "hono": "^4.3.11",
     "kysely": "^0.27.3",

@@ -17,7 +17,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react';
-import { Task, ViewType, isViewType } from '@/types';
+import { Task, TaskStatus, ViewType, isViewType } from '@/types';
 import { getStatusColor, getNotionLinkById } from '@/utils/miscellaneousUtils';
 import { getDateString } from '@/utils/dateUtils';
 import { atlasFetch } from '@/utils/api';
@@ -54,7 +54,7 @@ export default function TaskModal({
   const [editForm, setEditForm] = useState<{
     title: string;
     note: string;
-    status: string;
+    status: TaskStatus;
     date: string;
     source: string;
     id: string;
@@ -591,7 +591,7 @@ export default function TaskModal({
                     <button
                       key={s}
                       onClick={() => {
-                        setEditForm({ ...editForm, status: s });
+                        setEditForm({ ...editForm, status: s as TaskStatus });
                         setIsStatusMenuOpen(false);
                       }}
                       className={`p-3 rounded-lg flex items-center gap-3 transition-all ${

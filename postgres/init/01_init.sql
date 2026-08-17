@@ -93,7 +93,15 @@ CREATE TABLE ai_agents (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )
 
--- 9. アプリのメタデータ（最終同期時刻など）を保存するテーブル
+-- 9. immichのテーブル
+CREATE TABLE IF NOT EXISTS immich_cache (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(50) UNIQUE NOT NULL, -- 'stats' など
+    data JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. アプリのメタデータ（最終同期時刻など）を保存するテーブル
 CREATE TABLE IF NOT EXISTS app_metadata (
     key VARCHAR(255) PRIMARY KEY,
     value TEXT NOT NULL,

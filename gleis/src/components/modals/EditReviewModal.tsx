@@ -20,7 +20,7 @@ export default function EditReviewModal({
   const [value, setValue] = useState(initialValue);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => setValue(initialValue), [initialValue]);
+  useEffect(() => setValue(initialValue), [isOpen, initialValue]);
 
   // Escキー対応
   useEffect(() => {

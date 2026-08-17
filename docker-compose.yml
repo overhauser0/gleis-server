@@ -32,6 +32,8 @@ services:
       NOTION_WEEKLY_DB_ID: ${NOTION_WEEKLY_DB_ID}
       NOTION_DIARY_DB_ID: ${NOTION_DIARY_DB_ID}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      IMMICH_API_URL: ${IMMICH_API_URL}
+      IMMICH_API_KEY: ${IMMICH_API_KEY}
       ATLAS_API_KEY: ${ATLAS_API_KEY}
       ATLAS_PASSWORD: ${ATLAS_PASSWORD}
     volumes:
@@ -74,6 +76,24 @@ services:
       - /app/node_modules # NASとの同期から除外（高速化）
     ports:
       - '5677:5677'
+    depends_on:
+      - atlas-server
+    networks:
+      - atlas-net
+
+  vista:
+    build: ./vista
+    container_name: vista
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+      NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
+    volumes:
+      - ./vista:/app # コードをマウント（ホットリロード用）
+      - /app/node_modules # NASとの同期から除外（高速化）
+    ports:
+      - '5673:5673'
     depends_on:
       - atlas-server
     networks:
