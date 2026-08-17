@@ -15,7 +15,6 @@ import {
   HardDrive,
   Copy,
   FileText,
-  Loader2,
 } from 'lucide-react';
 import { Task, TaskStatus, ViewType, isViewType } from '@/types';
 import { getStatusColor, getNotionLinkById } from '@/utils/miscellaneousUtils';
@@ -112,7 +111,7 @@ export default function TaskModal({
     }
     setIsMoreMenuOpen(false);
     setIsStatusMenuOpen(false);
-    setShowBlocks(false); // 開き直した時はパネルを閉じる
+    setShowBlocks(false);
   }, [isOpen, mode, task]);
 
   // ドロップダウンの外側をクリックした時に閉じる処理
@@ -254,7 +253,7 @@ export default function TaskModal({
     return false;
   };
 
-  // 🌟 ブロック取得処理（2階層目まで再帰的に取得するよう改修）
+  // ブロック取得処理（2階層目まで再帰的に取得するよう改修）
   const handleShowContent = async (id: string | undefined) => {
     if (!id) return;
     setIsLoadingBlocks(true);
@@ -601,7 +600,7 @@ export default function TaskModal({
                       }`}
                     >
                       <div
-                        className={`w-2.5 h-2.5 rounded-full ${getStatusColor(s)}`}
+                        className={`w-2.5 h-2.5 rounded-full ${getStatusColor(s as TaskStatus)}`}
                       />
                       <span className="text-sm font-medium">{s}</span>
                     </button>
@@ -728,7 +727,7 @@ function NotionBlockNode({
   const type = block.type;
   const hasChildren = block.has_children;
 
-  // 🌟 オンデマンドフェッチ（クリック時の処理）
+  // オンデマンドフェッチ（クリック時の処理）
   const handleToggle = async () => {
     if (isExpanded) {
       setIsExpanded(false);
@@ -752,7 +751,7 @@ function NotionBlockNode({
     }
   };
 
-  // 🌟 バッジをクリッカブルなボタンに変更
+  // クリッカブルなバッジ
   const ToggleButton = hasChildren ? (
     <button
       onClick={handleToggle}
