@@ -20,7 +20,7 @@ services:
     container_name: atlas-server
     restart: always
     environment:
-      PORT: 5676
+      PORT: 5675
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       NOTION_API_KEY: ${NOTION_API_KEY}
       NOTION_PIECE_DS_ID: ${NOTION_PIECE_DS_ID}
@@ -46,19 +46,25 @@ services:
     networks:
       - atlas-net
   gleis:
-    build: ./gleis
+    build:
+      context: ./gleis
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
+        - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
     container_name: gleis
     restart: always
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
       NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+    # command: npm run dev 開発モードではこのコマンドをオーバーライドする
     volumes:
-      - ./gleis:/app
+      # - ./gleis:/app 開発モードにするときはマウントする
       - /app/node_modules
       - /app/.next
     ports:
-      - '5676:5676'
+      - '5676:3000'
     depends_on:
       - atlas-server
     networks:
@@ -72,7 +78,7 @@ services:
       NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
       NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
     volumes:
-      - ./trails:/app # コードをマウント（ホットリロード用）
+      - ./trails:/app
       - /app/node_modules # NASとの同期から除外（高速化）
     ports:
       - '5677:5677'
@@ -90,7 +96,7 @@ services:
       NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
       NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
     volumes:
-      - ./vista:/app # コードをマウント（ホットリロード用）
+      - ./vista:/app
       - /app/node_modules # NASとの同期から除外（高速化）
     ports:
       - '5673:5673'

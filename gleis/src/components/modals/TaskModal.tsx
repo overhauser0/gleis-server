@@ -571,7 +571,7 @@ export default function TaskModal({
               >
                 <div className="flex items-center gap-2.5">
                   <div
-                    className={`w-2.5 h-2.5 rounded-full ${getStatusColor(editForm.status)}`}
+                    className={`w-2.5 h-2.5 rounded-full ${getStatusColor(editForm.status as TaskStatus)}`}
                   />
                   <span className="text-sm tracking-wide font-medium">
                     {editForm.status}
