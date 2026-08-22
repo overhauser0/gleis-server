@@ -143,7 +143,7 @@ export default function ReviewView() {
                       </h4>
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-sm text-gray-300 italic">
-                          {data.monthly.summary || '-'}
+                          {data.monthly?.summary || '-'}
                         </p>
                         <button
                           onClick={() =>
