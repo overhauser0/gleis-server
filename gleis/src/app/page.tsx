@@ -1,3 +1,5 @@
+// src/app/page.tsx
+
 'use client';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import {
@@ -290,9 +292,9 @@ export default function Home() {
         )}
 
         <aside
-          className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-[-120%]'} sm:relative sm:translate-x-0 group w-64 sm:w-18 md:w-64 sm:hover:w-64 noir-glass flex flex-col m-2 md:m-4 rounded-2xl p-3 md:p-4 shrink-0 overflow-hidden`}
+          className={`fixed inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-[-120%]'} sm:relative sm:translate-x-0 group w-64 sm:w-20 md:w-64 sm:hover:w-64 noir-glass flex flex-col m-2 md:m-4 rounded-2xl p-3 md:p-4 shrink-0 overflow-x-hidden`}
         >
-          <div className="flex items-center gap-4 mb-8 px-2 mt-2">
+          <div className="flex items-center gap-4 mb-8 px-2 mt-2 shrink-0">
             <div className="w-8 h-8 bg-neon rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0">
               G
             </div>
@@ -300,7 +302,7 @@ export default function Home() {
               Gleis
             </div>
           </div>
-          <nav className="flex flex-col gap-2 flex-1">
+          <nav className="flex flex-col gap-2 flex-1 overflow-y-auto overflow-x-hidden noir-scrollbar">
             {[
               { id: 'home', icon: LayoutDashboard, label: 'Home' },
               { id: 'weekly', icon: Columns2, label: 'WeeklyTask' },
@@ -315,7 +317,6 @@ export default function Home() {
                 icon: ChartNoAxesCombined,
                 label: 'Stats',
               },
-              /* { id: 'notifications', icon: Bell, label: 'Notifications' }, いらないかな */
               { id: 'settings', icon: Settings, label: 'Settings' },
             ].map((item) => (
               <button
@@ -324,14 +325,14 @@ export default function Home() {
                 className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${currentView === item.id ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
               >
                 <item.icon className="w-5 h-5 shrink-0" />
-                <span className="sm:opacity-0 md:opacity-100 group-hover:opacity-100 transition-opacity font-medium">
+                <span className="sm:opacity-0 md:opacity-100 group-hover:opacity-100 transition-opacity font-medium whitespace-nowrap">
                   {item.label}
                 </span>
               </button>
             ))}
           </nav>
 
-          <div className="mt-auto pt-4 border-t border-white/5 flex flex-col gap-2">
+          <div className="mt-auto pt-4 border-t border-white/5 flex flex-col gap-2 shrink-0">
             <button
               onClick={() => {
                 setIsCommandPaletteOpen(true);
