@@ -126,7 +126,7 @@ export default function AiAgentSettings({
 
   return (
     <>
-      <section className="flex flex-col gap-4 max-w-3xl">
+      <section className="flex flex-col pb-4 gap-4 max-w-3xl">
         <h2 className="flex items-center gap-2 px-1 noir-label">
           <ShieldCheck className="w-3.5 h-3.5" />
           AI Models
@@ -151,7 +151,7 @@ export default function AiAgentSettings({
           />
         </div>
       </section>
-      <section className="flex flex-col gap-4 max-w-3xl">
+      <section className="flex flex-col pb-4 gap-4 max-w-3xl">
         <h2 className="flex items-center gap-2 px-1 noir-label">
           <Cpu className="w-3.5 h-3.5" />
           AI Agents
