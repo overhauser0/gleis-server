@@ -8,6 +8,7 @@ import { DiaryTable } from '../models/diary.model';
 import { NotificationsTable } from '../models/push.model';
 import { DbGoogleEvent } from '../models/calendar.model';
 import { LocalNotesTable } from '../models/note.model';
+import { RoutineTaskTable } from '../models/routine.model';
 import { ImmichCacheTable } from '../models/immich.model';
 import { AppMetadataTable } from '../models/metadata.model';
 
@@ -22,6 +23,7 @@ export interface Database {
   notifications: NotificationsTable;
   google_events: DbGoogleEvent;
   local_notes: LocalNotesTable;
+  routine_tasks: RoutineTaskTable;
   immich_cache: ImmichCacheTable;
   app_metadata: AppMetadataTable;
 }

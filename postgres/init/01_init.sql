@@ -1,7 +1,7 @@
--- 1. 拡張機能の有効化（UUID生成用）
+-- 拡張機能の有効化（UUID生成用）
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 2. Notionデータキャッシュ用テーブル
+-- Notionデータキャッシュ用テーブル
 -- Notionからの同期データを高速に検索・表示するためのテーブル
 CREATE TABLE IF NOT EXISTS notion_pieces_cache (
     id TEXT PRIMARY KEY, -- NotionのIDは文字列のためTEXT
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS notion_pieces_cache (
     synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 );
 
--- 3. ローカルタスク用テーブル
+-- ローカルタスク用テーブル
 -- ローカルに保存するデータ用のテーブル。Notionと同じ構造
 CREATE TABLE IF NOT EXISTS local_pieces (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS local_pieces (
     metadata JSONB DEFAULT '{}'        -- 廃止予定
 );
 
--- 4. 通知履歴用テーブル
+-- 通知履歴用テーブル
 -- 外部からのプッシュ通知内容を履歴として保持
 CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. 日記データ用テーブル
+-- 日記データ用テーブル
 CREATE TABLE IF NOT EXISTS diaries (
     id VARCHAR(255) PRIMARY KEY, -- NotionのページID
     name VARCHAR(255) NOT NULL,  -- yyyy-mm-dd形式の文字列
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS diaries (
     synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP -- 同期日時
 );
 
--- 6. Googl Calendarデータキャッシュ用テーブル
+-- Googl Calendarデータキャッシュ用テーブル
 CREATE TABLE IF NOT EXISTS google_events (
     id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS google_events (
     synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. ノートテーブル
+-- ノートテーブル
 CREATE TABLE local_notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE local_notes (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 8. 独自エージェントテーブル
+-- 独自エージェントテーブル
 CREATE TABLE ai_agents (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -93,7 +93,31 @@ CREATE TABLE ai_agents (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )
 
--- 9. immichのテーブル
+-- ルーチンタスクテーブル
+CREATE TABLE IF NOT EXISTS routine_tasks (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  frequency VARCHAR(20) NOT NULL, -- 'weekly' または 'monthly'
+  
+  -- 週次用: 基準日(実行日)からのオフセット日数 (0:当日, 1:翌日...)
+  days_to_add INT DEFAULT 0,
+  
+  -- 月次用: 日付指定 ('date') または 第◯曜日指定 ('nthWeekday')
+  type VARCHAR(20), 
+  day INT,               -- type='date' の時の日付 (1~31)
+  week INT,              -- type='nthWeekday' の時の週数 (1~5)
+  day_of_week INT,       -- 曜日 (0:日, 1:月, 2:火, 3:水, 4:木, 5:金, 6:土)
+  
+  -- オプション項目
+  note TEXT DEFAULT '',
+  url TEXT DEFAULT '',
+  
+  is_active BOOLEAN DEFAULT true, -- 一時無効化フラグ
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- immichのテーブル
 CREATE TABLE IF NOT EXISTS immich_cache (
     id SERIAL PRIMARY KEY,
     key VARCHAR(50) UNIQUE NOT NULL, -- 'stats' など
@@ -101,7 +125,7 @@ CREATE TABLE IF NOT EXISTS immich_cache (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 10. アプリのメタデータ（最終同期時刻など）を保存するテーブル
+-- アプリのメタデータ（最終同期時刻など）を保存するテーブル
 CREATE TABLE IF NOT EXISTS app_metadata (
     key VARCHAR(255) PRIMARY KEY,
     value TEXT NOT NULL,
@@ -113,7 +137,7 @@ INSERT INTO app_metadata (key, value)
 VALUES ('last_notion_sync_time', '1970-01-01T00:00:00Z')
 ON CONFLICT DO NOTHING;
 
--- 8. インデックスの作成（検索の高速化）
+-- インデックスの作成（検索の高速化）
 CREATE INDEX IF NOT EXISTS idx_notion_pieces_area ON notion_pieces_cache(area);
 CREATE INDEX IF NOT EXISTS idx_notion_pieces_status ON notion_pieces_cache(status);
 CREATE INDEX IF NOT EXISTS idx_notion_pieces_date ON notion_pieces_cache(date);

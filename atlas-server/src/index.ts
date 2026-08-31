@@ -10,6 +10,7 @@ import * as aiController from './controllers/ai.controller';
 import * as noteController from './controllers/note.controller';
 import * as agentController from './controllers/agent.controller';
 import * as immichController from './controllers/immich.controller';
+import * as routineController from './controllers/routine.controller';
 import * as notificationRepo from './repositories/notification.repository';
 import { initWebSocket } from './utils/websocket';
 
@@ -102,8 +103,13 @@ api.post('/notes', noteController.createNote);
 api.patch('/notes/:id', noteController.updateNote);
 api.delete('/notes/:id', noteController.deleteNote);
 
-// immich
+// Routine
+api.get('/routines', routineController.getRoutines);
+api.post('/routines', routineController.createRoutine);
+api.delete('/routines/:id', routineController.deleteRoutine);
+api.patch('/routines/:id', routineController.updateRoutine);
 
+// immich
 api.get('/immich/stats', immichController.getImmichStats);
 api.post('/immich/sync', immichController.syncImmichStats);
 api.get('/immich/missing-dates', immichController.getMissingDates);

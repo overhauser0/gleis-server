@@ -4,6 +4,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Geminiクライアントの初期化
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const genAI_charged = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY_CHARGED || '',
+);
 
 // ==========================================
 // 1. Execute (汎用AI実行)
@@ -11,7 +14,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export const execute = async (c: Context) => {
   try {
     // フロントエンドからの payload: { prompt, agentId }
-    const { prompt, agentId } = await c.req.json();
+    const { prompt, agentId, is_charged_model = false } = await c.req.json();
 
     if (!prompt) {
       return c.json({ error: 'Prompt is required' }, 400);
@@ -40,7 +43,9 @@ export const execute = async (c: Context) => {
     }
 
     // モデルの初期化
-    const model = genAI.getGenerativeModel({
+    const useAI = is_charged_model ? genAI_charged : genAI;
+
+    const model = useAI.getGenerativeModel({
       model: 'gemini-3.5-flash',
       systemInstruction: systemInstruction,
     });
@@ -65,7 +70,7 @@ export const execute = async (c: Context) => {
 // ==========================================
 export const parseTask = async (c: Context) => {
   try {
-    const { text } = await c.req.json();
+    const { text, is_charged_model = false } = await c.req.json();
 
     if (!text) {
       return c.json({ error: 'Text is required' }, 400);
@@ -143,7 +148,9 @@ export const parseTask = async (c: Context) => {
       }
     `;
 
-    const model = genAI.getGenerativeModel({
+    const useAI = is_charged_model ? genAI_charged : genAI;
+
+    const model = useAI.getGenerativeModel({
       model: 'gemini-3.5-flash',
       systemInstruction: systemInstruction,
     });

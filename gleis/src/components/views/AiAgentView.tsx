@@ -1,7 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Sparkles, Cpu, Loader2, X, Copy, Trash2 } from 'lucide-react';
+import {
+  Send,
+  Sparkles,
+  Cpu,
+  Loader2,
+  X,
+  Copy,
+  Trash2,
+  Zap,
+  ShieldCheck,
+} from 'lucide-react';
 import { atlasFetch } from '@/utils/api';
 import { useToast } from '@/components/ui/Toast';
 
@@ -18,12 +28,16 @@ export interface Agent {
 interface AiAgentViewProps {
   onSyncStart?: () => void;
   onSyncEnd?: () => void;
+  appSettings: any;
+  setAppSettings: (s: any) => void;
 }
 
 // ==========================================
 // 2. Main Component
 // ==========================================
 export default function AiAgentView({
+  appSettings,
+  setAppSettings,
   onSyncStart,
   onSyncEnd,
 }: AiAgentViewProps) {
@@ -82,7 +96,6 @@ export default function AiAgentView({
     setIsSending(true);
     onSyncStart?.();
 
-    // 送信時は古いレスポンスをクリアしてローディング画面に切り替え
     setResponseObj(null);
 
     try {
@@ -93,6 +106,7 @@ export default function AiAgentView({
         body: JSON.stringify({
           prompt: prompt.trim(),
           agentId: selectedAgentId,
+          is_charged_model: appSettings.isChargedModel ?? false,
         }),
       });
 
@@ -138,6 +152,21 @@ export default function AiAgentView({
     }
   };
 
+  const toggleChargedModel = () => {
+    setAppSettings((prev: any) => ({
+      ...prev,
+      isChargedModel: !prev.isChargedModel,
+    }));
+    addToast(
+      !appSettings.isChargedModel
+        ? '有料モデル (Charged API) に切り替えました'
+        : '無料モデル (Standard API) に切り替えました',
+      'info',
+    );
+  };
+
+  const isCharged = appSettings.isChargedModel ?? false;
+
   return (
     <div className="flex flex-col h-full bg-black relative animate-fade-in overflow-hidden">
       {/* 1. Top Input Balloon */}
@@ -155,8 +184,28 @@ export default function AiAgentView({
             rows={2}
           />
 
-          <div className="flex items-center justify-between px-3 pb-3 pt-1 border-t border-white/5 relative z-10">
-            <div className="flex-1 flex items-center gap-2 overflow-x-auto noir-scrollbar pr-4">
+          <div className="flex items-center justify-between px-3 pb-3 pt-1 border-t border-white/5 relative z-10 gap-2">
+            <div className="flex-1 flex items-center gap-2 overflow-x-auto noir-scrollbar pr-2">
+              {/* 有料/無料モデルの切り替えトグルバッジ */}
+              <button
+                onClick={toggleChargedModel}
+                className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                  isCharged
+                    ? 'bg-sky-500/20 border-sky-500/50 text-sky-400 shadow-[0_0_10px_rgba(14,165,233,0.2)]'
+                    : 'bg-black/40 border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200'
+                }`}
+                title="クリックして有料/無料モデルを切り替え"
+              >
+                {isCharged ? (
+                  <Zap className="w-3.5 h-3.5 text-sky-400" />
+                ) : (
+                  <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
+                )}
+                <span>{isCharged ? 'Charged (有料)' : 'Standard (無料)'}</span>
+              </button>
+
+              <div className="h-4 w-px bg-white/10 shrink-0 mx-1" />
+
               {isFetchingAgents ? (
                 <div className="text-xs text-gray-500 flex items-center gap-1 px-2">
                   <Loader2 className="w-3 h-3 animate-spin" /> Loading agents...
@@ -220,7 +269,7 @@ export default function AiAgentView({
           </div>
         ) : (
           <div className="animate-fade-in flex flex-col items-start w-full max-w-4xl mx-auto">
-            {/* エージェント名（控えめに配置） */}
+            {/* エージェント名 */}
             <div className="flex items-center gap-1.5 mb-4 px-1 opacity-70">
               <Cpu className="w-3 h-3 text-amber-500" />
               <span className="text-[11px] font-mono uppercase tracking-wider text-amber-500">
@@ -228,7 +277,7 @@ export default function AiAgentView({
               </span>
             </div>
 
-            {/* レスポンス本文（ベタ置きスタイル） */}
+            {/* レスポンス本文 */}
             <div className="w-full text-base leading-relaxed text-gray-200">
               <div className="whitespace-pre-wrap">{responseObj?.content}</div>
             </div>

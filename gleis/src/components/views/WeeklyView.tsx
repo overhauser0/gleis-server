@@ -210,7 +210,6 @@ export default function WeeklyView({
                       hoverable
                       onDragStart={() => setDraggingTaskId(task.id)}
                       className={`cursor-grab active:cursor-grabbing group flex flex-col gap-3 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : 'opacity-100'}`}
-                      // `noir-glass border border-white/5 hover:border-white/10 cursor-grab active:cursor-grabbing transition-all group relative flex flex-col gap-3 ${draggingTaskId === task.id ? 'opacity-30 scale-95' : 'opacity-100'}`
                     >
                       <div
                         className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-full ${getStatusColor(task.status)} opacity-50`}

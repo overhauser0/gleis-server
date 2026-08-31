@@ -425,6 +425,8 @@ export default function Home() {
           )}
           {currentView === 'aiagent' && (
             <AiAgentView
+              appSettings={appSettings}
+              setAppSettings={setAppSettings}
               onSyncStart={incrementRequest}
               onSyncEnd={decrementRequest}
             />

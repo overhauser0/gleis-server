@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Monitor, Cpu, Activity, Keyboard } from 'lucide-react';
+import { Monitor, Cpu, Activity, Keyboard, Repeat } from 'lucide-react';
 
 // --- Sub Components ---
 import GeneralSettings from './settings/GeneralSettings';
 import AiAgentSettings from './settings/AiAgentSettings';
+import RoutineSettings from './settings/RoutineSettings';
 import NetworkSettings from './settings/NetworkSettings';
 import ShortcutSettings from './settings/ShortcutSettings';
 import { DeviceInfo } from '@/types';
@@ -18,7 +19,7 @@ interface Props {
   ownDeviceId?: string;
 }
 
-type TabType = 'general' | 'ai' | 'network' | 'shortcuts';
+type TabType = 'general' | 'ai' | 'routine' | 'network' | 'shortcuts';
 
 export default function SettingsView({
   appSettings,
@@ -32,6 +33,7 @@ export default function SettingsView({
   const tabs = [
     { id: 'general', label: 'General', icon: Monitor },
     { id: 'ai', label: 'AI Agents', icon: Cpu },
+    { id: 'routine', label: 'Routine', icon: Repeat },
     { id: 'network', label: 'Network', icon: Activity },
     { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
   ];
@@ -71,7 +73,14 @@ export default function SettingsView({
             />
           )}
 
-          {activeTab === 'ai' && <AiAgentSettings />}
+          {activeTab === 'ai' && (
+            <AiAgentSettings
+              appSettings={appSettings}
+              setAppSettings={setAppSettings}
+            />
+          )}
+
+          {activeTab === 'routine' && <RoutineSettings />}
 
           {activeTab === 'network' && (
             <NetworkSettings
